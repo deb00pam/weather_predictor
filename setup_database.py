@@ -30,8 +30,8 @@ def setup_database():
     print("✅ Database initialized")
     
     # Check for weather data
-    if not os.path.exists("weather.csv"):
-        print("\n❌ Error: weather.csv not found!")
+    if not os.path.exists("data/weather.csv"):
+        print("\n❌ Error: data/weather.csv not found!")
         print("Please ensure the weather data file is in the project directory.")
         sys.exit(1)
     
@@ -52,7 +52,7 @@ def setup_database():
         
         print("✅ Models trained and saved to database")
         
-        # Show results summary
+        # Show results summarygit 
         print("\n📊 Training Results:")
         for condition, metrics in results.items():
             accuracy = metrics.get('test_accuracy', 0)
@@ -88,7 +88,7 @@ def main():
     """Main setup function"""
     print("Welcome to WeatherWise setup!")
     print("This script will initialize the database and train ML models.")
-    print("Required: weather.csv file must be present in the project directory.")
+    print("Required: data/weather.csv file must be present in the data directory.")
     print()
     
     # Check Python version

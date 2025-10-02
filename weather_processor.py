@@ -23,7 +23,7 @@ class WeatherProcessor:
             'very_uncomfortable': None  # Will be calculated based on heat index
         }
         
-    def load_and_preprocess_data(self, csv_path='weather.csv'):
+    def load_and_preprocess_data(self, csv_path='data/weather.csv'):
         """Load and preprocess weather data"""
         print("Loading weather data...")
         df = pd.read_csv(csv_path)
