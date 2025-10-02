@@ -5,8 +5,11 @@ from datetime import datetime, date
 from typing import Optional, Dict, List
 import uvicorn
 import os
+import uuid
+import time
 
 from weather_processor import WeatherProcessor
+from database import WeatherDatabase
 
 app = FastAPI(
     title="WeatherWise API",
@@ -23,8 +26,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize weather processor
+# Initialize weather processor and database
 weather_processor = WeatherProcessor()
+db = WeatherDatabase()
 
 # Activity-specific risk thresholds and recommendations
 ACTIVITY_PROFILES = {
@@ -147,18 +151,21 @@ class WeatherResponse(BaseModel):
 async def startup_event():
     """Initialize models on startup"""
     try:
-        # Try to load existing models
-        weather_processor.load_models()
-        print("Loaded existing weather models")
-    except:
-        print("No existing models found. Training new models...")
-        # Train new models if none exist
-        df = weather_processor.load_and_preprocess_data()
-        features = weather_processor.create_features(df)
-        classifications = weather_processor.create_weather_classifications(df)
-        weather_processor.train_models(features, classifications)
-        weather_processor.save_models()
-        print("New models trained and saved")
+        # Try to load existing models from database
+        models_loaded = weather_processor.load_models()
+        if models_loaded:
+            print("Loaded existing weather models from database")
+        else:
+            print("No existing models found. Training new models...")
+            # Train new models if none exist
+            df = weather_processor.load_and_preprocess_data()
+            features = weather_processor.create_features(df)
+            classifications = weather_processor.create_weather_classifications(df)
+            weather_processor.train_models(features, classifications)
+            print("New models trained and saved to database")
+    except Exception as e:
+        print(f"Error during startup: {e}")
+        # Continue anyway - the API will still work with fallback predictions
 
 @app.get("/")
 async def root():
@@ -176,7 +183,12 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "models_loaded": len(weather_processor.models) > 0}
+    db_stats = db.get_database_stats()
+    return {
+        "status": "healthy", 
+        "models_loaded": len(weather_processor.models) > 0,
+        "database_stats": db_stats
+    }
 
 @app.get("/activities")
 async def get_activities():
@@ -189,7 +201,33 @@ async def get_activities():
 @app.post("/predict-weather", response_model=WeatherResponse)
 async def predict_weather(request: WeatherRequest):
     """Predict weather risks for a specific date, location, and activity"""
+    start_time = time.time()
+    session_id = str(uuid.uuid4())
+    
     try:
+        # Check cache first
+        date_str = request.date.strftime("%Y-%m-%d")
+        cached = db.get_cached_prediction(
+            date_str, request.location.latitude, request.location.longitude, request.activity
+        )
+        
+        if cached:
+            # Log cache hit
+            db.log_user_query(
+                session_id, 
+                {"type": "cache_hit", "date": date_str, "activity": request.activity},
+                cached,
+                time.time() - start_time
+            )
+            
+            # Convert cached data to response format
+            return WeatherResponse(
+                date=request.date,
+                location=request.location,
+                activity=request.activity,
+                prediction=ActivityRecommendation(**cached)
+            )
+        
         # Get raw weather predictions
         predictions = weather_processor.predict_weather_risks(
             datetime.combine(request.date, datetime.min.time())
@@ -238,6 +276,32 @@ async def predict_weather(request: WeatherRequest):
         if not recommendations:
             recommendations.append("Conditions look good for your planned activity!")
         
+        # Prepare response
+        prediction_result = {
+            "overall_risk_score": overall_risk_score,
+            "risk_level": overall_risk,
+            "recommendations": recommendations,
+            "conditions": {k: v.__dict__ for k, v in condition_predictions.items()}
+        }
+        
+        # Cache the prediction
+        db.cache_prediction(date_str, request.location.latitude, request.location.longitude, 
+                           request.activity, prediction_result)
+        
+        # Log the query
+        response_time = time.time() - start_time
+        db.log_user_query(
+            session_id,
+            {
+                "date": date_str,
+                "latitude": request.location.latitude,
+                "longitude": request.location.longitude,
+                "activity": request.activity
+            },
+            prediction_result,
+            response_time
+        )
+        
         return WeatherResponse(
             date=request.date,
             location=request.location,
@@ -251,6 +315,13 @@ async def predict_weather(request: WeatherRequest):
         )
         
     except Exception as e:
+        # Log error
+        db.log_user_query(
+            session_id,
+            {"error": str(e), "date": request.date.strftime("%Y-%m-%d"), "activity": request.activity},
+            None,
+            time.time() - start_time
+        )
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
 
 @app.get("/predict-weather-simple")
@@ -288,9 +359,34 @@ async def get_location_info(
         "elevation": 100  # Placeholder
     }
 
+@app.get("/models/info")
+async def get_models_info():
+    """Get information about stored ML models"""
+    models = db.get_model_info()
+    stats = db.get_database_stats()
+    
+    return {
+        "models": models,
+        "database_stats": stats,
+        "total_models": len(models)
+    }
+
+@app.get("/analytics/summary")
+async def get_analytics_summary():
+    """Get basic analytics about API usage"""
+    stats = db.get_database_stats()
+    
+    return {
+        "total_predictions": stats.get('weather_predictions', 0),
+        "total_queries": stats.get('user_queries', 0),
+        "models_count": stats.get('ml_models', 0),
+        "database_size_mb": stats.get('db_size_mb', 0)
+    }
+
 if __name__ == "__main__":
-    # Create models directory if it doesn't exist
-    os.makedirs("models", exist_ok=True)
+    # Initialize database
+    print("Initializing WeatherWise database...")
+    db = WeatherDatabase()
     
     # Run the server
     uvicorn.run(

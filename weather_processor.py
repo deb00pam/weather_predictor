@@ -3,15 +3,18 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-import joblib
 from datetime import datetime, timedelta
 import warnings
 warnings.filterwarnings('ignore')
+
+# Import our database module
+from database import WeatherDatabase
 
 class WeatherProcessor:
     def __init__(self):
         self.scaler = StandardScaler()
         self.models = {}
+        self.db = WeatherDatabase()  # Initialize database connection
         self.thresholds = {
             'very_hot': 28,      # Celsius - adjusted to be more realistic
             'very_cold': 10,     # Celsius - adjusted to get some positive examples
@@ -171,9 +174,39 @@ class WeatherProcessor:
                 'positive_examples': y_train.sum()
             }
             
+            # Save model to database with metrics
+            model_metadata = {
+                'condition': condition,
+                'training_samples': len(y_train),
+                'positive_examples': int(y_train.sum()),
+                'features_count': X_train_scaled.shape[1],
+                'trained_date': datetime.now().isoformat()
+            }
+            
+            self.db.save_model(
+                model_name=condition,
+                model_obj=model,
+                model_type="RandomForestClassifier",
+                metadata=model_metadata,
+                accuracy=test_score
+            )
+            
+            # Save metrics separately for tracking
+            metrics = {
+                'train_accuracy': train_score,
+                'test_accuracy': test_score,
+                'avg_probability': y_prob.mean(),
+                'positive_examples_ratio': y_train.sum() / len(y_train)
+            }
+            self.db.save_model_metrics(condition, metrics)
+            
             print(f"  Train accuracy: {train_score:.3f}")
             print(f"  Test accuracy: {test_score:.3f}")
             print(f"  Positive examples: {results[condition]['positive_examples']}")
+        
+        # Save scaler to database
+        self.db.save_scaler("main_scaler", self.scaler)
+        print("Models and scaler saved to database")
         
         return results
     
@@ -247,28 +280,41 @@ class WeatherProcessor:
             return 'very_high'
     
     def save_models(self, path='models/'):
-        """Save trained models and scaler"""
-        import os
-        os.makedirs(path, exist_ok=True)
-        
-        joblib.dump(self.scaler, f'{path}/scaler.pkl')
-        for condition, model in self.models.items():
-            joblib.dump(model, f'{path}/{condition}_model.pkl')
-        
-        print(f"Models saved to {path}")
+        """Save trained models and scaler - DEPRECATED: Now using database"""
+        print("Models are now saved to database automatically during training")
+        print("This method is deprecated but kept for compatibility")
     
     def load_models(self, path='models/'):
-        """Load trained models and scaler"""
-        self.scaler = joblib.load(f'{path}/scaler.pkl')
+        """Load trained models and scaler from database"""
+        print("Loading models from database...")
         
+        # Load scaler
+        scaler = self.db.load_scaler("main_scaler")
+        if scaler:
+            self.scaler = scaler
+        else:
+            print("Warning: No scaler found in database")
+        
+        # Load weather condition models
         conditions = ['very_hot', 'very_cold', 'very_wet', 'very_windy', 'very_uncomfortable']
-        for condition in conditions:
-            try:
-                self.models[condition] = joblib.load(f'{path}/{condition}_model.pkl')
-            except FileNotFoundError:
-                print(f"Model for {condition} not found")
+        loaded_count = 0
         
-        print("Models loaded successfully")
+        for condition in conditions:
+            model_data = self.db.load_model(condition)
+            if model_data:
+                self.models[condition] = model_data['model']
+                loaded_count += 1
+                accuracy = model_data['accuracy'] or 0.0
+                print(f"  Loaded {condition} model (accuracy: {accuracy:.3f})")
+            else:
+                print(f"  Warning: {condition} model not found in database")
+        
+        if loaded_count > 0:
+            print(f"Successfully loaded {loaded_count} models from database")
+        else:
+            print("No models found in database")
+        
+        return loaded_count > 0
 
 def main():
     """Example usage"""
