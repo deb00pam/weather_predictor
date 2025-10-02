@@ -239,9 +239,11 @@ class WeatherProcessor:
         ] + [25, 15, 2, 15, 65] * 6])  # Simplified rolling and lag features
         
         # Pad to match training features (this is simplified - in production would be more robust)
-        if feature_vector.shape[1] < 50:  # Assuming ~50 features
-            padding = np.zeros((1, 50 - feature_vector.shape[1]))
+        if feature_vector.shape[1] < 40:  # Models expect 40 features
+            padding = np.zeros((1, 40 - feature_vector.shape[1]))
             feature_vector = np.hstack([feature_vector, padding])
+        elif feature_vector.shape[1] > 40:  # Truncate if too many features
+            feature_vector = feature_vector[:, :40]
         
         predictions = {}
         for condition, model in self.models.items():

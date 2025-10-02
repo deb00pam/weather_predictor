@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherWise - Weather Prediction for Outdoor Activities</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <h1>🌤️ WeatherWise</h1>
+            <p>Weather Prediction for Outdoor Activities</p>
+            <div id="backend-status" class="status-indicator">
+                <span id="status-text">Checking backend...</span>
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="input-section">
+                <h2>Weather Parameters</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="temperature">Temperature (°C)</label>
+                        <input type="number" id="temperature" placeholder="e.g. 25" step="0.1" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="humidity">Humidity (%)</label>
+                        <input type="number" id="humidity" placeholder="e.g. 60" min="0" max="100" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="wind-speed">Wind Speed (km/h)</label>
+                        <input type="number" id="wind-speed" placeholder="e.g. 15" min="0" step="0.1" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pressure">Pressure (hPa)</label>
+                        <input type="number" id="pressure" placeholder="e.g. 1013" step="0.1" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="activity">Planned Activity</label>
+                    <select id="activity">
+                        <option value="hiking">🥾 Hiking</option>
+                        <option value="fishing">🎣 Fishing</option>
+                        <option value="vacation">🏖️ Vacation</option>
+                        <option value="camping">🏕️ Camping</option>
+                        <option value="cycling">🚴 Cycling</option>
+                        <option value="outdoor_sports">⚽ Outdoor Sports</option>
+                    </select>
+                </div>
+
+                <button id="predict-btn" class="predict-button">
+                    Get Weather Prediction
+                </button>
+            </div>
+
+            <div class="results-section" id="results-section" style="display: none;">
+                <h2>Weather Risk Assessment</h2>
+                
+                <div class="risk-overview" id="risk-overview">
+                    <div class="activity-risk" id="activity-risk">
+                        <span class="risk-label">Activity Risk:</span>
+                        <span class="risk-value" id="risk-value">-</span>
+                    </div>
+                    <div class="recommendation" id="recommendation">
+                        <span class="rec-label">Recommendation:</span>
+                        <span class="rec-text" id="rec-text">-</span>
+                    </div>
+                </div>
+
+                <div class="prediction-grid">
+                    <div class="prediction-card">
+                        <div class="prediction-icon">🔥</div>
+                        <div class="prediction-label">Very Hot</div>
+                        <div class="prediction-value" id="very-hot">0%</div>
+                        <div class="prediction-bar">
+                            <div class="prediction-fill" id="very-hot-fill"></div>
+                        </div>
+                    </div>
+
+                    <div class="prediction-card">
+                        <div class="prediction-icon">🥶</div>
+                        <div class="prediction-label">Very Cold</div>
+                        <div class="prediction-value" id="very-cold">0%</div>
+                        <div class="prediction-bar">
+                            <div class="prediction-fill" id="very-cold-fill"></div>
+                        </div>
+                    </div>
+
+                    <div class="prediction-card">
+                        <div class="prediction-icon">💨</div>
+                        <div class="prediction-label">Very Windy</div>
+                        <div class="prediction-value" id="very-windy">0%</div>
+                        <div class="prediction-bar">
+                            <div class="prediction-fill" id="very-windy-fill"></div>
+                        </div>
+                    </div>
+
+                    <div class="prediction-card">
+                        <div class="prediction-icon">🌧️</div>
+                        <div class="prediction-label">Very Wet</div>
+                        <div class="prediction-value" id="very-wet">0%</div>
+                        <div class="prediction-bar">
+                            <div class="prediction-fill" id="very-wet-fill"></div>
+                        </div>
+                    </div>
+
+                    <div class="prediction-card">
+                        <div class="prediction-icon">😣</div>
+                        <div class="prediction-label">Uncomfortable</div>
+                        <div class="prediction-value" id="very-uncomfortable">0%</div>
+                        <div class="prediction-bar">
+                            <div class="prediction-fill" id="very-uncomfortable-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="loading" id="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Analyzing weather conditions...</p>
+            </div>
+
+            <div class="error" id="error" style="display: none;">
+                <div class="error-icon">⚠️</div>
+                <div class="error-message" id="error-message"></div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>

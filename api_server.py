@@ -383,6 +383,93 @@ async def get_analytics_summary():
         "database_size_mb": stats.get('db_size_mb', 0)
     }
 
+# Direct weather parameters prediction model
+class DirectWeatherRequest(BaseModel):
+    temperature: float
+    humidity: float
+    wind_speed: float
+    pressure: float
+    activity: str = "general"
+
+class DirectWeatherResponse(BaseModel):
+    prediction: Dict[str, float]
+    activity_risk: str
+    recommendation: str
+    timestamp: str
+
+@app.post("/predict", response_model=DirectWeatherResponse)
+async def predict_direct(request: DirectWeatherRequest):
+    """Direct prediction using weather parameters"""
+    try:
+        # Create a location_features dict from the input parameters
+        from datetime import datetime, date
+        today = date.today()
+        
+        location_features = {
+            'temp_max': request.temperature + 2,  # Estimate daily max
+            'temp_min': request.temperature - 2,  # Estimate daily min
+            'temp_avg': request.temperature,
+            'temp_range': 4,
+            'rain': 0,  # Default for now
+            'wind_speed': request.wind_speed,
+            'humidity': request.humidity,
+            'month': today.month,
+            'day_of_year': today.timetuple().tm_yday,
+            'season': ((today.month - 1) // 3) % 4
+        }
+        
+        # Use weather processor to make predictions
+        predictions_raw = weather_processor.predict_weather_risks(today, location_features)
+        
+        # Convert to simple probability dict
+        predictions = {}
+        for condition, pred_data in predictions_raw.items():
+            predictions[condition] = pred_data['probability']
+        
+        # Calculate activity-specific risk - handle missing 'general' activity
+        if request.activity not in ACTIVITY_PROFILES:
+            # Default to hiking if activity not found
+            activity_profile = ACTIVITY_PROFILES["hiking"]
+        else:
+            activity_profile = ACTIVITY_PROFILES[request.activity]
+        
+        # Calculate overall risk score
+        risk_score = 0.0
+        recommendations = []
+        
+        for condition, probability in predictions.items():
+            weight = activity_profile["risk_weights"].get(condition, 0.5)
+            risk_score += probability * weight
+            
+            if probability > 0.5:  # High risk threshold
+                rec = activity_profile["recommendations"].get(condition, f"High {condition} probability")
+                recommendations.append(rec)
+        
+        # Determine risk level
+        if risk_score < 0.3:
+            risk_level = "low"
+        elif risk_score < 0.6:
+            risk_level = "medium"
+        else:
+            risk_level = "high"
+        
+        # Get main recommendation
+        if recommendations:
+            main_recommendation = recommendations[0]
+        else:
+            main_recommendation = "Weather conditions are favorable for this activity."
+        
+        return DirectWeatherResponse(
+            prediction=predictions,
+            activity_risk=risk_level,
+            recommendation=main_recommendation,
+            timestamp=datetime.now().isoformat()
+        )
+        
+    except Exception as e:
+        print(f"Prediction error: {e}")  # Debug log
+        raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
+
 if __name__ == "__main__":
     # Initialize database
     print("Initializing WeatherWise database...")
