@@ -17,8 +17,51 @@
         </header>
 
         <main class="main">
-            <div class="input-section">
-                <h2>Weather Parameters</h2>
+            <!-- Location and Time Query Section -->
+            <div class="input-section query-section">
+                <h2>📍 When & Where</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="query-date">Date</label>
+                        <input type="date" id="query-date" />
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="location-input">Location</label>
+                        <input type="text" id="location-input" placeholder="City name or coordinates" />
+                    </div>
+                    
+                    <div class="form-group coords-group" style="display: none;">
+                        <label for="latitude">Latitude</label>
+                        <input type="number" id="latitude" placeholder="e.g. 40.7128" step="0.0001" />
+                    </div>
+                    
+                    <div class="form-group coords-group" style="display: none;">
+                        <label for="longitude">Longitude</label>
+                        <input type="number" id="longitude" placeholder="e.g. -74.0060" step="0.0001" />
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="activity">Planned Activity</label>
+                    <select id="activity">
+                        <option value="hiking">🥾 Hiking</option>
+                        <option value="fishing">🎣 Fishing</option>
+                        <option value="vacation">🏖️ Vacation</option>
+                        <option value="camping">🏕️ Camping</option>
+                        <option value="cycling">🚴 Cycling</option>
+                        <option value="outdoor_sports">⚽ Outdoor Sports</option>
+                    </select>
+                </div>
+                
+                <div class="query-mode-toggle">
+                    <button type="button" id="auto-query-btn" class="mode-btn active">Auto Query Weather</button>
+                    <button type="button" id="manual-mode-btn" class="mode-btn">Manual Entry</button>
+                </div>
+            </div>
+            
+            <div class="input-section manual-section" style="display: none;">
+                <h2>Manual Weather Parameters</h2>
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="temperature">Temperature (°C)</label>
@@ -39,18 +82,6 @@
                         <label for="pressure">Pressure (hPa)</label>
                         <input type="number" id="pressure" placeholder="e.g. 1013" step="0.1" />
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="activity">Planned Activity</label>
-                    <select id="activity">
-                        <option value="hiking">🥾 Hiking</option>
-                        <option value="fishing">🎣 Fishing</option>
-                        <option value="vacation">🏖️ Vacation</option>
-                        <option value="camping">🏕️ Camping</option>
-                        <option value="cycling">🚴 Cycling</option>
-                        <option value="outdoor_sports">⚽ Outdoor Sports</option>
-                    </select>
                 </div>
 
                 <button id="predict-btn" class="predict-button">
