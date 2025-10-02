@@ -11,9 +11,6 @@
         <header class="header">
             <h1>🌤️ WeatherWise</h1>
             <p>Weather Prediction for Outdoor Activities</p>
-            <div id="backend-status" class="status-indicator">
-                <span id="status-text">Checking backend...</span>
-            </div>
         </header>
 
         <main class="main">
@@ -31,15 +28,7 @@
                         <input type="text" id="location-input" placeholder="City name or coordinates" />
                     </div>
                     
-                    <div class="form-group coords-group" style="display: none;">
-                        <label for="latitude">Latitude</label>
-                        <input type="number" id="latitude" placeholder="e.g. 40.7128" step="0.0001" />
-                    </div>
-                    
-                    <div class="form-group coords-group" style="display: none;">
-                        <label for="longitude">Longitude</label>
-                        <input type="number" id="longitude" placeholder="e.g. -74.0060" step="0.0001" />
-                    </div>
+
                 </div>
                 
                 <div class="form-group">
@@ -54,39 +43,77 @@
                     </select>
                 </div>
                 
-                <div class="query-mode-toggle">
-                    <button type="button" id="auto-query-btn" class="mode-btn active">Auto Query Weather</button>
-                    <button type="button" id="manual-mode-btn" class="mode-btn">Manual Entry</button>
-                </div>
-            </div>
-            
-            <div class="input-section manual-section" style="display: none;">
-                <h2>Manual Weather Parameters</h2>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="temperature">Temperature (°C)</label>
-                        <input type="number" id="temperature" placeholder="e.g. 25" step="0.1" />
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="humidity">Humidity (%)</label>
-                        <input type="number" id="humidity" placeholder="e.g. 60" min="0" max="100" />
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="wind-speed">Wind Speed (km/h)</label>
-                        <input type="number" id="wind-speed" placeholder="e.g. 15" min="0" step="0.1" />
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="pressure">Pressure (hPa)</label>
-                        <input type="number" id="pressure" placeholder="e.g. 1013" step="0.1" />
-                    </div>
-                </div>
-
                 <button id="predict-btn" class="predict-button">
                     Get Weather Prediction
                 </button>
+            </div>
+            
+            <!-- Advanced Customization Section -->
+            <div class="input-section advanced-section">
+                <h2>🔧 Advanced Options</h2>
+                <details class="advanced-toggle">
+                    <summary>🎯 Custom Risk Thresholds</summary>
+                    <p class="section-description">Adjust your comfort levels for different weather conditions (0% = No concern, 100% = High concern)</p>
+                    <div class="threshold-grid">
+                        <div class="threshold-item">
+                            <label for="hot-threshold">🌡️ Heat Sensitivity</label>
+                            <input type="range" id="hot-threshold" min="0" max="100" value="70" />
+                            <span class="threshold-value">70%</span>
+                        </div>
+                        <div class="threshold-item">
+                            <label for="cold-threshold">❄️ Cold Sensitivity</label>
+                            <input type="range" id="cold-threshold" min="0" max="100" value="70" />
+                            <span class="threshold-value">70%</span>
+                        </div>
+                        <div class="threshold-item">
+                            <label for="wind-threshold">💨 Wind Sensitivity</label>
+                            <input type="range" id="wind-threshold" min="0" max="100" value="60" />
+                            <span class="threshold-value">60%</span>
+                        </div>
+                        <div class="threshold-item">
+                            <label for="rain-threshold">🌧️ Rain Sensitivity</label>
+                            <input type="range" id="rain-threshold" min="0" max="100" value="80" />
+                            <span class="threshold-value">80%</span>
+                        </div>
+                        <div class="threshold-item">
+                            <label for="comfort-threshold">😰 Discomfort Sensitivity</label>
+                            <input type="range" id="comfort-threshold" min="0" max="100" value="60" />
+                            <span class="threshold-value">60%</span>
+                        </div>
+                    </div>
+                    <button type="button" class="reset-btn" id="reset-thresholds">Reset to Defaults</button>
+                </details>
+
+                <details class="advanced-toggle">
+                    <summary>📊 Multi-Location Comparison</summary>
+                    <p class="section-description">Compare weather risks across multiple locations</p>
+                    <div class="multi-location-container">
+                        <div class="location-input-group">
+                            <input type="text" id="compare-location-1" placeholder="e.g. New York" />
+                            <input type="text" id="compare-location-2" placeholder="e.g. London" />
+                            <input type="text" id="compare-location-3" placeholder="e.g. Tokyo" />
+                            <button type="button" id="compare-locations-btn" class="secondary-btn">Compare Locations</button>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="advanced-toggle">
+                    <summary>📅 Date Range Analysis</summary>
+                    <p class="section-description">Analyze weather patterns over multiple days</p>
+                    <div class="date-range-container">
+                        <div class="date-inputs">
+                            <div class="form-group">
+                                <label for="start-date">Start Date</label>
+                                <input type="date" id="start-date" />
+                            </div>
+                            <div class="form-group">
+                                <label for="end-date">End Date</label>
+                                <input type="date" id="end-date" />
+                            </div>
+                        </div>
+                        <button type="button" id="analyze-range-btn" class="secondary-btn">Analyze Date Range</button>
+                    </div>
+                </details>
             </div>
 
             <div class="results-section" id="results-section" style="display: none;">
