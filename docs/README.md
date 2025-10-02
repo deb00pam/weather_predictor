@@ -1,5 +1,10 @@
 # WeatherWise - Intelligent Weather Prediction System
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://python.org)
+[![Tauri](https://img.shields.io/badge/Tauri-1.5-orange.svg)](https://tauri.app)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com)
+
 ## 🌤️ Overview
 WeatherWise is an AI-powered weather risk assessment platform that provides **activity-specific** weather predictions for outdoor planning. Instead of generic weather forecasts, it tells you the likelihood of adverse conditions for your specific activity (hiking, fishing, camping, etc.).
 
@@ -198,6 +203,21 @@ The API provides comprehensive endpoints for testing:
 ## 🌍 Vision Statement
 *"Empower people to make confident outdoor decisions by providing AI-powered, activity-specific weather risk assessments that go beyond traditional forecasts."*
 
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
+
+### What this means:
+- ✅ **Free to use** for personal and commercial projects
+- ✅ **Modify** and distribute the code freely
+- ✅ **No warranty** - use at your own risk
+- ✅ **Attribution required** - keep the copyright notice
+
+### Contributing
+By contributing to this project, you agree that your contributions will be licensed under the MIT License.
+
 ---
 
 **Status**: Python Backend with Database Complete ✅ | Ready for Frontend Development 🚀
+
+Copyright (c) 2025 deb00pam

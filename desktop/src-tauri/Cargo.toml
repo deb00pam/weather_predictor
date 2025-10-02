@@ -2,7 +2,7 @@
 name = "weatherwise-desktop"
 version = "1.0.0"
 description = "WeatherWise Desktop App - Weather prediction for outdoor activities"
-authors = ["WeatherWise Team"]
+authors = ["deb00pam"]
 license = "MIT"
 repository = ""
 default-run = "weatherwise-desktop"

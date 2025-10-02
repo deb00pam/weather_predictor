@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "WeatherWise Desktop App - Weather prediction for outdoor activities",
-  "author": "WeatherWise Team",
+  "author": "deb00pam",
   "license": "MIT",
   "scripts": {
     "dev": "vite",
