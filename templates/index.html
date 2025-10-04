@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Predictor Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🌤️ Weather Predictor Chatbot</h1>
+            <p>Ask me about weather conditions for your outdoor activities!</p>
+        </header>
+        
+        <div class="chat-container">
+            <div class="messages" id="messages">
+                <div class="message bot-message">
+                    <div class="message-content">
+                        <strong>Weather Bot:</strong> Hello! I can help you plan outdoor activities by analyzing weather data from NASA and providing personalized recommendations. 
+                        <br><br>
+                        Try asking me things like:
+                        <ul>
+                            <li>"What's the weather like for hiking in Colorado?"</li>
+                            <li>"Is it good for camping in Yellowstone this time of year?"</li>
+                            <li>"Show me weather patterns for fishing in Florida"</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-container">
+                <form id="chat-form">
+                    <input 
+                        type="text" 
+                        id="user-input" 
+                        placeholder="Ask about weather for your outdoor activity..."
+                        required
+                        autocomplete="off"
+                    >
+                    <button type="submit" id="send-button">
+                        <span class="send-text">Send</span>
+                        <span class="loading-text" style="display: none;">
+                            <span class="spinner"></span>
+                            Analyzing...
+                        </span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <p>Powered by NASA POWER data, Google Gemini AI, and OpenStreetMap</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
